@@ -1,0 +1,124 @@
+get_lovelace_config:
+  name: Get Lovelace Config
+  description: Get the Lovelace dashboard configuration
+  fields:
+    dashboard_id:
+      name: Dashboard ID
+      description: The ID of the dashboard to get (default is "lovelace")
+      required: false
+      example: "lovelace"
+      selector:
+        text:
+
+save_lovelace_config:
+  name: Save Lovelace Config
+  description: Save the Lovelace dashboard configuration
+  fields:
+    dashboard_id:
+      name: Dashboard ID
+      description: The ID of the dashboard to save (default is "lovelace")
+      required: false
+      example: "lovelace"
+      selector:
+        text:
+    config:
+      name: Config
+      description: The new Lovelace configuration
+      required: true
+      example: {"title": "My Home", "views": [...]}
+      selector:
+        object:
+
+upsert_lovelace_view:
+  name: Add or Update Lovelace View
+  description: Add a new view or update an existing view in the Lovelace dashboard
+  fields:
+    dashboard_id:
+      name: Dashboard ID
+      description: The ID of the dashboard to modify (default is "lovelace")
+      required: false
+      example: "lovelace"
+      selector:
+        text:
+    title:
+      name: Title
+      description: The title of the view
+      required: true
+      example: "New View"
+      selector:
+        text:
+    path:
+      name: Path
+      description: The path of the view (unique identifier)
+      required: true
+      example: "new_view"
+      selector:
+        text:
+
+delete_lovelace_view:
+  name: Delete Lovelace View
+  description: Delete a view from the Lovelace dashboard
+  fields:
+    dashboard_id:
+      name: Dashboard ID
+      description: The ID of the dashboard to modify (default is "lovelace")
+      required: false
+      example: "lovelace"
+      selector:
+        text:
+    path:
+      name: Path
+      description: The path of the view to delete
+      required: true
+      example: "view_to_delete"
+      selector:
+        text:
+
+get_lovelace_section:
+  name: Get Lovelace Section
+  description: Get a specific view's content from the Lovelace dashboard
+  fields:
+    dashboard_id:
+      name: Dashboard ID
+      description: The ID of the dashboard (default is "lovelace")
+      required: false
+      example: "lovelace"
+      selector:
+        text:
+    path:
+      name: Path
+      description: The path of the view to get
+      required: true
+      example: "view_path"
+      selector:
+        text:
+
+set_lovelace_section:
+  name: Set Lovelace Section
+  description: Set the content of a specific view in the Lovelace dashboard
+  fields:
+    dashboard_id:
+      name: Dashboard ID
+      description: The ID of the dashboard (default is "lovelace")
+      required: false
+      example: "lovelace"
+      selector:
+        text:
+    path:
+      name: Path
+      description: The path of the view to set
+      required: true
+      example: "view_path"
+      selector:
+        text:
+    view_config:
+      name: View Config
+      description: The complete configuration for the view
+      required: true
+      example: {"title": "My View", "cards": [...]}
+      selector:
+        object:
+
+restart_hass:
+  name: Restart Home Assistant
+  description: Restart Home Assistant instance
