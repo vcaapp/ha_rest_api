@@ -51,6 +51,29 @@ GET /api/ha_rest_api/lovelace?dashboard_id=lovelace
 }
 ```
 
+### 获取Lovelace视图列表
+
+```
+GET /api/ha_rest_api/lovelace_list?dashboard_id=lovelace
+```
+
+**参数**：
+- `dashboard_id`：（可选）要获取的面板ID，默认为"lovelace"
+
+**响应示例**：
+```json
+[
+  {
+    "title": "主页",
+    "path": "default_view"
+  },
+  {
+    "title": "客厅",
+    "path": "living_room"
+  }
+]
+```
+
 ### 保存Lovelace配置
 
 ```
@@ -221,6 +244,15 @@ POST /api/ha_rest_api/restart
 
 结果将存储在Home Assistant的数据存储中，可以通过开发者工具 > 状态 > `ha_rest_api` 查看。
 
+### ha_rest_api.get_lovelace_list
+
+获取Lovelace视图列表（仅包含title和path）。
+
+**服务数据**：
+- `dashboard_id`：（可选）要获取的面板ID，默认为"lovelace"
+
+结果将存储在Home Assistant的数据存储中，通过`last_list_get_result`字段访问。
+
 ### ha_rest_api.save_lovelace_config
 
 保存Lovelace面板配置。
@@ -277,6 +309,12 @@ POST /api/ha_rest_api/restart
 #### 获取Lovelace配置
 ```bash
 curl -X GET "http://your-home-assistant:8123/api/ha_rest_api/lovelace?dashboard_id=lovelace" \
+  -H "Authorization: Bearer YOUR_LONG_LIVED_ACCESS_TOKEN"
+```
+
+#### 获取Lovelace视图列表
+```bash
+curl -X GET "http://your-home-assistant:8123/api/ha_rest_api/lovelace_list?dashboard_id=lovelace" \
   -H "Authorization: Bearer YOUR_LONG_LIVED_ACCESS_TOKEN"
 ```
 
@@ -350,6 +388,20 @@ headers = {
 response = requests.get(url, headers=headers)
 config = response.json()
 print(config)
+```
+
+#### 获取Lovelace视图列表
+```python
+import requests
+
+url = "http://your-home-assistant:8123/api/ha_rest_api/lovelace_list"
+headers = {
+    "Authorization": "Bearer YOUR_LONG_LIVED_ACCESS_TOKEN"
+}
+
+response = requests.get(url, headers=headers)
+view_list = response.json()
+print(view_list)
 ```
 
 #### 保存Lovelace配置

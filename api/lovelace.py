@@ -26,9 +26,11 @@ from ..const import (
     SERVICE_GET_LOVELACE_SECTION,
     SERVICE_SET_LOVELACE_SECTION,
     SERVICE_RESTART_HASS,
+    SERVICE_GET_LOVELACE_LIST,
     LOVELACE_API_PATH,
     LOVELACE_SECTION_API_PATH,
     LOVELACE_SECTION_DELETE_API_PATH,
+    LOVELACE_LIST_API_PATH,
     RESTART_HASS_API_PATH,
 )
 
@@ -393,6 +395,40 @@ class LovelaceAPI:
         if success:
             await self.reload_lovelace_resources(dashboard_id)
 
+    async def get_lovelace_list(self, dashboard_id: str) -> list:
+        """Get a simplified list of Lovelace views with just title and path."""
+        try:
+            # Get current config
+            current_config = await self.get_lovelace_config(dashboard_id)
+            if not isinstance(current_config, dict):
+                _LOGGER.error("Invalid Lovelace configuration")
+                return []
+            
+            # Extract title and path from each view
+            view_list = []
+            for view in current_config.get("views", []):
+                if "path" in view and "title" in view:
+                    view_list.append({
+                        "title": view["title"],
+                        "path": view["path"]
+                    })
+            
+            return view_list
+            
+        except Exception as e:
+            _LOGGER.error(f"Error getting Lovelace view list: {str(e)}")
+            return []
+    
+    async def handle_get_list_service(self, call: ServiceCall) -> None:
+        """Handle the get_list service call."""
+        dashboard_id = call.data.get("dashboard_id", "lovelace")
+        
+        view_list = await self.get_lovelace_list(dashboard_id)
+        
+        # Store the result as service data
+        self.hass.data.setdefault(DOMAIN, {})
+        self.hass.data[DOMAIN]["last_list_get_result"] = view_list
+
 
 class LovelaceAPIView(HomeAssistantView):
     """View to handle Lovelace API requests."""
@@ -588,6 +624,28 @@ class RestartHassAPIView(HomeAssistantView):
             return self.json({"success": False, "error": str(e)}, status_code=500)
 
 
+class LovelaceListAPIView(HomeAssistantView):
+    """View to handle Lovelace list API requests."""
+
+    url = LOVELACE_LIST_API_PATH
+    name = "api:ha_rest_api:lovelace_list"
+
+    def __init__(self, lovelace_api: LovelaceAPI) -> None:
+        """Initialize the Lovelace list API view."""
+        self.lovelace_api = lovelace_api
+        self.hass = lovelace_api.hass
+
+    async def get(self, request: web.Request) -> web.Response:
+        """Handle GET request for Lovelace views list."""
+        try:
+            dashboard_id = request.query.get("dashboard_id", "lovelace")
+            view_list = await self.lovelace_api.get_lovelace_list(dashboard_id)
+            return self.json(view_list)
+        except Exception as e:
+            _LOGGER.error("Error getting Lovelace views list: %s", str(e))
+            return self.json({"success": False, "error": str(e)}, status_code=500)
+
+
 class MockWebSocketConnection:
     """Mock WebSocket connection to call internal APIs."""
 
@@ -630,6 +688,7 @@ async def async_setup_lovelace_api(hass: HomeAssistant) -> None:
     hass.http.register_view(LovelateSectionUpsertAPIView(lovelace_api))
     hass.http.register_view(LovelaceSectionDeleteAPIView(lovelace_api))
     hass.http.register_view(RestartHassAPIView(lovelace_api))
+    hass.http.register_view(LovelaceListAPIView(lovelace_api))
     
     # Register services
     hass.services.async_register(
@@ -684,6 +743,14 @@ async def async_setup_lovelace_api(hass: HomeAssistant) -> None:
             vol.Required("path"): cv.string,
             vol.Required("view_config"): dict,
         })
+    )
+    
+    # Register service for getting view list
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_GET_LOVELACE_LIST,
+        lovelace_api.handle_get_list_service,
+        schema=SERVICE_GET_CONFIG_SCHEMA
     )
     
     _LOGGER.info("Lovelace API endpoints registered")
