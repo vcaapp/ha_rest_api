@@ -2,6 +2,10 @@ import asyncio
 import json
 import aiohttp
 
+# 全局配置
+HOST = "192.168.1.91:8123"
+TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIwM2EyNmQyM2E5YTY0ZDk5YjVjNmM1NThkNDBkZWJmYyIsImlhdCI6MTc0NDE3MDk2NCwiZXhwIjoyMDU5NTMwOTY0fQ.coaiPtV7uVYHWvYj8aubqfY24quurk3Z4HpVovYwckw"
+
 class HAWebsocket:
     def __init__(self, host, access_token):
         self.host = host
@@ -178,10 +182,7 @@ class HARestAPI:
                 return await response.json()
 
 async def test_upsert_lovelace_view():
-    host = "192.168.1.91:8123"
-    token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJlMTE5MTFiZmQzYmQ0ZjU5YWQxMGFkZTg2ODM5ODRhZSIsImlhdCI6MTc0MzY3Mzc5NywiZXhwIjoyMDU5MDMzNzk3fQ.7LC1ZXDUqOoTI1rqQhjKm9CfujqUtfdSfkp5zHeyClU"
-    
-    api = HARestAPI(host, token)
+    api = HARestAPI(HOST, TOKEN)
     
     # 1. 先获取当前配置
     print("\n1. 获取当前 Lovelace 配置:")
@@ -229,10 +230,7 @@ async def test_upsert_lovelace_view():
                 break
 
 async def test_delete_lovelace_view():
-    host = "192.168.1.91:8123"
-    token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJlMTE5MTFiZmQzYmQ0ZjU5YWQxMGFkZTg2ODM5ODRhZSIsImlhdCI6MTc0MzY3Mzc5NywiZXhwIjoyMDU5MDMzNzk3fQ.7LC1ZXDUqOoTI1rqQhjKm9CfujqUtfdSfkp5zHeyClU"
-    
-    api = HARestAPI(host, token)
+    api = HARestAPI(HOST, TOKEN)
     
     # 1. 先获取当前配置
     print("\n1. 获取当前 Lovelace 配置:")
@@ -294,10 +292,7 @@ async def test_delete_lovelace_view():
     
 
 async def test_restart_hass():
-    host = "192.168.1.91:8123"
-    token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJlMTE5MTFiZmQzYmQ0ZjU5YWQxMGFkZTg2ODM5ODRhZSIsImlhdCI6MTc0MzY3Mzc5NywiZXhwIjoyMDU5MDMzNzk3fQ.7LC1ZXDUqOoTI1rqQhjKm9CfujqUtfdSfkp5zHeyClU"
-    
-    api = HARestAPI(host, token)
+    api = HARestAPI(HOST, TOKEN)
     
     # 测试重启
     print("\n测试重启 Home Assistant:")
@@ -305,10 +300,7 @@ async def test_restart_hass():
     print(json.dumps(result, indent=2, ensure_ascii=False))
 
 async def test_lovelace_section_apis():
-    host = "192.168.1.91:8123"
-    token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJlMTE5MTFiZmQzYmQ0ZjU5YWQxMGFkZTg2ODM5ODRhZSIsImlhdCI6MTc0MzY3Mzc5NywiZXhwIjoyMDU5MDMzNzk3fQ.7LC1ZXDUqOoTI1rqQhjKm9CfujqUtfdSfkp5zHeyClU"
-    
-    api = HARestAPI(host, token)
+    api = HARestAPI(HOST, TOKEN)
     test_path = "test_section"
     
     # 1. 创建一个测试视图
@@ -365,10 +357,7 @@ async def test_lovelace_section_apis():
     print(json.dumps(delete_result, indent=2, ensure_ascii=False))
 
 async def test_get_lovelace_list():
-    host = "192.168.1.91:8123"
-    token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJlMTE5MTFiZmQzYmQ0ZjU5YWQxMGFkZTg2ODM5ODRhZSIsImlhdCI6MTc0MzY3Mzc5NywiZXhwIjoyMDU5MDMzNzk3fQ.7LC1ZXDUqOoTI1rqQhjKm9CfujqUtfdSfkp5zHeyClU"
-    
-    api = HARestAPI(host, token)
+    api = HARestAPI(HOST, TOKEN)
     
     # 1. 获取当前视图列表
     print("\n1. 获取当前Lovelace视图列表:")
