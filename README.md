@@ -15,6 +15,7 @@
 
 ### 系统管理 API
 - 重启 Home Assistant
+- 健康检查接口
 
 ## 安装
 
@@ -233,6 +234,24 @@ POST /api/ha_rest_api/restart
 }
 ```
 
+### 健康检查
+
+```
+GET /api/ha_rest_api/health
+```
+
+**说明**：
+- 检查Home Assistant和集成的健康状态
+- 返回系统状态、版本信息和可用的API端点
+- **无需授权** - 此接口可以不使用访问令牌直接访问
+
+**响应示例**：
+```json
+{
+  "status": "healthy"
+}
+```
+
 ## Home Assistant服务
 
 ### ha_rest_api.get_lovelace_config
@@ -374,6 +393,12 @@ curl -X POST "http://your-home-assistant:8123/api/ha_rest_api/restart" \
   -H "Authorization: Bearer YOUR_LONG_LIVED_ACCESS_TOKEN"
 ```
 
+#### 健康检查
+```bash
+# 无需授权访问
+curl -X GET "http://your-home-assistant:8123/api/ha_rest_api/health"
+```
+
 ### 使用Python
 
 #### 获取Lovelace配置
@@ -481,6 +506,18 @@ headers = {
 
 response = requests.post(url, headers=headers)
 print(response.json())
+```
+
+#### 健康检查
+```python
+import requests
+
+# 无需授权访问
+url = "http://your-home-assistant:8123/api/ha_rest_api/health"
+
+response = requests.get(url)
+health_status = response.json()
+print(health_status)
 ```
 
 ## 扩展开发

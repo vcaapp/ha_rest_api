@@ -32,6 +32,7 @@ from ..const import (
     LOVELACE_SECTION_DELETE_API_PATH,
     LOVELACE_LIST_API_PATH,
     RESTART_HASS_API_PATH,
+    HEALTH_API_PATH,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -646,6 +647,27 @@ class LovelaceListAPIView(HomeAssistantView):
             return self.json({"success": False, "error": str(e)}, status_code=500)
 
 
+class HealthAPIView(HomeAssistantView):
+    """View to handle health check API requests."""
+
+    url = HEALTH_API_PATH
+    name = "api:ha_rest_api:health"
+    requires_auth = False  # 允许无需授权访问
+
+    def __init__(self, lovelace_api: LovelaceAPI) -> None:
+        """Initialize the Health API view."""
+        self.lovelace_api = lovelace_api
+        self.hass = lovelace_api.hass
+
+    async def get(self, request: web.Request) -> web.Response:
+        """Handle GET request for health check."""
+        try:
+            return self.json({"status": "healthy"})
+        except Exception as e:
+            _LOGGER.error("Error in health check: %s", str(e))
+            return self.json({"status": "unhealthy"}, status_code=500)
+
+
 class MockWebSocketConnection:
     """Mock WebSocket connection to call internal APIs."""
 
@@ -689,6 +711,7 @@ async def async_setup_lovelace_api(hass: HomeAssistant) -> None:
     hass.http.register_view(LovelaceSectionDeleteAPIView(lovelace_api))
     hass.http.register_view(RestartHassAPIView(lovelace_api))
     hass.http.register_view(LovelaceListAPIView(lovelace_api))
+    hass.http.register_view(HealthAPIView(lovelace_api))
     
     # Register services
     hass.services.async_register(
@@ -753,4 +776,4 @@ async def async_setup_lovelace_api(hass: HomeAssistant) -> None:
         schema=SERVICE_GET_CONFIG_SCHEMA
     )
     
-    _LOGGER.info("Lovelace API endpoints registered")
+    _LOGGER.info("Home Assistant REST API endpoints registered (including health check)")

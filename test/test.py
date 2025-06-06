@@ -176,9 +176,25 @@ class HARestAPI:
             "path": path,
             "view_config": view_config
         }
-        
+
         async with aiohttp.ClientSession() as session:
             async with session.post(url, headers=self.headers, json=data) as response:
+                return await response.json()
+
+    async def get_health(self):
+        """获取健康检查状态"""
+        url = f"{self.base_url}/api/ha_rest_api/health"
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=self.headers) as response:
+                return await response.json()
+
+    async def get_health_no_auth(self):
+        """获取健康检查状态（无需授权）"""
+        url = f"{self.base_url}/api/ha_rest_api/health"
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
                 return await response.json()
 
 async def test_upsert_lovelace_view():
@@ -390,12 +406,44 @@ async def test_get_lovelace_list():
     print(json.dumps(final_list, indent=2, ensure_ascii=False))
     print(f"最终视图数量: {len(final_list)}")
 
+async def test_health_check():
+    """测试健康检查接口"""
+    api = HARestAPI(HOST, TOKEN)
+
+    print("\n测试健康检查接口（带授权）:")
+    health_status = await api.get_health()
+    print(json.dumps(health_status, indent=2, ensure_ascii=False))
+
+    print("\n测试健康检查接口（无需授权）:")
+    health_status_no_auth = await api.get_health_no_auth()
+    print(json.dumps(health_status_no_auth, indent=2, ensure_ascii=False))
+
+    # 验证两种方式的响应是否一致
+    if health_status == health_status_no_auth:
+        print("\n✅ 带授权和无授权访问返回相同结果")
+    else:
+        print("\n❌ 带授权和无授权访问返回不同结果")
+
+    # 验证响应结构
+    if isinstance(health_status_no_auth, dict):
+        print("\n验证响应结构:")
+        status = health_status_no_auth.get('status', '未知')
+        print(f"状态: {status}")
+
+        if status == "healthy":
+            print("✅ 健康检查状态正常")
+        else:
+            print("❌ 健康检查状态异常")
+    else:
+        print("❌ 健康检查响应格式不正确")
+
 async def main():
     # await test_upsert_lovelace_view()
     # await test_delete_lovelace_view()
     # await test_lovelace_section_apis()
     # await test_restart_hass()
-    await test_get_lovelace_list()
+    # await test_get_lovelace_list()
+    await test_health_check()
 
 if __name__ == "__main__":
     asyncio.run(main())
